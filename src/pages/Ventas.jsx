@@ -193,9 +193,9 @@ const Ventas = () => {
     <p className="font-bold">{venta.cliente}</p>
     <p className="text-sm text-gray-600">${venta.monto.toLocaleString()}</p>
     <p className="text-sm text-gray-600">Estado: {venta.estado}</p>
-    <p className="text-sm text-gray-600">
-      Fecha: {venta.fechaCreacion?.toDate ? new Date(venta.fechaCreacion.toDate()).toLocaleString() : 'Sin fecha'}
-    </p>
+   <p className="text-sm text-gray-600">
+  Fecha: {venta.fechaCreacion?.toDate ? venta.fechaCreacion.toDate().toLocaleString() : 'Sin fecha'}
+</p>
   </div>
   <div className="flex gap-4">
     <button onClick={() => editarVenta(venta)} className="text-blue-500 font-bold hover:underline">Editar</button>
