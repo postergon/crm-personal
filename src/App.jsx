@@ -1,35 +1,144 @@
-import React from "react";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import Registro from './pages/Registro';
+import Dashboard from './pages/Dashboard';
+import Contactos from './pages/Contactos';
+import Ventas from './pages/Ventas';
+import Soporte from './pages/Soporte';
+import Marketing from './pages/Marketing';
+import Analisis from './pages/Analisis';
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedByRole from './components/ProtectedByRole';
+import Usuarios from './pages/Usuarios';
+import RutaProtegidaPorRol from './routes/RutaProtegidaPorRol';
+import Historial from './pages/Historial';
 
-function App() {
+const App = () => {
+  console.log("App.jsx cargado");
   return (
-    <div className="gradient-bg flex min-h-screen items-center justify-center from-blue-500 to-purple-600 p-8">
-      <div className="max-w-xl transform rounded-lg bg-white p-8 shadow-lg transition duration-500 hover:scale-105">
-        <h1 className="mb-4 animate-bounce text-center text-4xl font-bold text-gray-800">
-          Hello World
-        </h1>
-        <p className="mb-6 rounded-md bg-amber-100 p-6 text-gray-600">
-          Welcome to our React application enhanced with Tailwind CSS. This
-          application is built using the modern web development stack: Vite,
-          React, Tailwind CSS, and Prettier.
-        </p>
-        <div className="prose mt-6">
-          <p>
-            Tailwind CSS is a utility-first CSS framework that provides
-            low-level utility classes to build custom designs without any
-            annoying opinionated styles you have to fight to override. Paired
-            with React, it makes building beautiful and interactive user
-            interfaces a breeze.
-          </p>
-          <p>
-            Explore the power of combining these technologies to create
-            stunning, responsive, and animated web applications. Enjoy the
-            seamless development experience with Prettier ensuring your code
-            stays clean and consistent.
-          </p>
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        {/* Rutas públicas */}
+        <Route path="/" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+
+        {/* Rutas protegidas */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/contactos"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <Contactos />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/ventas"
+          element={
+            <ProtectedRoute>
+              <ProtectedByRole allowedRoles={['admin', 'vendedor']}>
+                <Navbar />
+                <Ventas />
+              </ProtectedByRole>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/soporte"
+          element={
+            <ProtectedRoute>
+              <ProtectedByRole allowedRoles={['admin', 'soporte']}>
+                <Navbar />
+                <Soporte />
+              </ProtectedByRole>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/marketing"
+          element={
+            <ProtectedRoute>
+              <ProtectedByRole allowedRoles={['admin']}>
+                <Navbar />
+                <Marketing />
+              </ProtectedByRole>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/analisis"
+          element={
+            <ProtectedRoute>
+              <ProtectedByRole allowedRoles={['admin']}>
+                <Navbar />
+                <Analisis />
+              </ProtectedByRole>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+  path="/dashboard/ventas"
+  element={
+    <RutaProtegidaPorRol rolesPermitidos={['admin', 'vendedor']}>
+      <Ventas />
+    </RutaProtegidaPorRol>
+  }
+/>
+<Route path="/dashboard/historial" element={<Historial />} />
+<Route
+  path="/dashboard/marketing"
+  element={
+    <RutaProtegidaPorRol rolesPermitidos={['admin']}>
+      <Marketing />
+    </RutaProtegidaPorRol>
+  }
+/>
+
+<Route
+  path="/dashboard/soporte"
+  element={
+    <RutaProtegidaPorRol rolesPermitidos={['admin', 'soporte']}>
+      <Soporte />
+    </RutaProtegidaPorRol>
+  }
+/>
+
+<Route
+  path="/dashboard/analisis"
+  element={
+    <RutaProtegidaPorRol rolesPermitidos={['admin']}>
+      <Analisis />
+    </RutaProtegidaPorRol>
+  }
+/>
+        <Route
+  path="/dashboard/usuarios"
+  element={
+    <ProtectedRoute>
+      <ProtectedByRole allowedRoles={['admin']}>
+        <Navbar />
+        <Usuarios />
+      </ProtectedByRole>
+    </ProtectedRoute>
+  }
+/>
+
+        {/* Ruta por defecto */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
