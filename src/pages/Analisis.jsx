@@ -19,7 +19,7 @@ const Analisis = () => {
       setVentas(ventasSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
       // Tickets
-      const ticketsSnap = await getDocs(collection(db, 'tickets'));
+      const ticketsSnap = await getDocs(collection(db, 'soporte'));
       setTickets(ticketsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
       // Campañas
