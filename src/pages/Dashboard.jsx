@@ -6,12 +6,15 @@ import { onAuthStateChanged } from 'firebase/auth';
 import {
   DollarSign,
   AlertCircle,
+  Users,
+  ClipboardList,
 } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [ventas, setVentas] = useState([]);
   const [tickets, setTickets] = useState([]);
+  const [contactos, setContactos] = useState([]);
   const [rol, setRol] = useState(null);
 
   useEffect(() => {
@@ -21,6 +24,9 @@ const Dashboard = () => {
 
       const soporteSnap = await getDocs(collection(db, 'soporte'));
       setTickets(soporteSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+      const contactosSnap = await getDocs(collection(db, 'contactos'));
+      setContactos(contactosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     };
 
     const obtenerRol = async (uid) => {
@@ -53,28 +59,55 @@ const Dashboard = () => {
   const ventasAbiertas = ventas.filter(v => v.estado === 'Pendiente').length;
   const ticketsPendientes = tickets.filter(t => t.estado === 'Pendiente').length;
 
+  const contactosConTareas = contactos.filter(c =>
+    c.tareas?.some(t => !t.completado)
+  ).length;
+
+  const totalTareasPendientes = contactos.reduce((total, c) =>
+    total + (c.tareas?.filter(t => !t.completado).length || 0)
+  , 0);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-4">Bienvenido al CRM</h1>
       <p className="mb-6 text-gray-600">Resumen general y accesos:</p>
 
+      {/* TARJETAS DE MÉTRICAS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <div className="bg-white rounded-xl shadow p-4 flex items-center gap-4">
-          <DollarSign className="text-green-600" size={32} />
+        <div className="bg-white rounded-xl shadow p-4 flex items-center gap-4 border-l-4 border-blue-500">
+          <DollarSign className="text-blue-500" size={32} />
           <div>
             <p className="text-sm text-gray-500">Ventas Abiertas</p>
             <p className="text-xl font-bold">{ventasAbiertas}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow p-4 flex items-center gap-4">
+
+        <div className="bg-white rounded-xl shadow p-4 flex items-center gap-4 border-l-4 border-purple-600">
           <AlertCircle className="text-purple-600" size={32} />
           <div>
             <p className="text-sm text-gray-500">Tickets Pendientes</p>
             <p className="text-xl font-bold">{ticketsPendientes}</p>
           </div>
         </div>
+
+        <div className="bg-white rounded-xl shadow p-4 flex items-center gap-4 border-l-4 border-yellow-500">
+          <Users className="text-yellow-500" size={32} />
+          <div>
+            <p className="text-sm text-gray-500">Contactos con tareas</p>
+            <p className="text-xl font-bold">{contactosConTareas}</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-4 flex items-center gap-4 border-l-4 border-orange-500">
+          <ClipboardList className="text-orange-500" size={32} />
+          <div>
+            <p className="text-sm text-gray-500">Tareas pendientes</p>
+            <p className="text-xl font-bold">{totalTareasPendientes}</p>
+          </div>
+        </div>
       </div>
 
+      {/* BOTONES DE ACCESO */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {puedeVer('contactos') && (
           <button

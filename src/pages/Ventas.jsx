@@ -56,27 +56,25 @@ const Ventas = () => {
     const data = {
       cliente,
       monto: parseFloat(monto),
-      estado
-    };
-
-    if (modoEdicion && ventaEditandoId) {
-      await updateDoc(doc(db, 'ventas', ventaEditandoId), data);
-      await registrarHistorial(`Venta actualizada para ${cliente}`, 'ventas', 'editar');
-      setModoEdicion(false);
-      setVentaEditandoId(null);
-    } else {
-  await addDoc(ventasRef, {
-    ...data,
-    fechaCreacion: serverTimestamp()
-  });
-  await registrarHistorial(`Nueva venta registrada para ${cliente}`, 'ventas', 'crear');
-}
-
-    setCliente('');
-    setMonto('');
-    setEstado('Pendiente');
-    obtenerVentas();
+      estado,
+     fechaCreacion: serverTimestamp() // ⬅️ nuevo
   };
+
+  if (modoEdicion && ventaEditandoId) {
+    await updateDoc(doc(db, 'ventas', ventaEditandoId), data);
+    await registrarHistorial(`Venta actualizada para ${cliente}`, 'ventas', 'editar');
+    setModoEdicion(false);
+    setVentaEditandoId(null);
+  } else {
+    await addDoc(ventasRef, data);
+    await registrarHistorial(`Nueva venta registrada para ${cliente}`, 'ventas', 'crear');
+  }
+
+  setCliente('');
+  setMonto('');
+  setEstado('Pendiente');
+  obtenerVentas();
+};
 
   const editarVenta = (venta) => {
     setCliente(venta.cliente);
@@ -190,27 +188,20 @@ const Ventas = () => {
         <h3 className="text-xl font-semibold mb-2">Lista de Ventas</h3>
         <ul className="space-y-2">
           {ventasPaginadas.map((venta) => (
-            <li key={venta.id} className="bg-white p-4 rounded-md shadow flex justify-between items-center">
-              <div>
-                <p className="font-bold">{venta.cliente}</p>
-                <p className="text-sm text-gray-600">${venta.monto.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">Estado: {venta.estado}</p>
-              </div>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => editarVenta(venta)}
-                  className="text-blue-500 font-bold hover:underline"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => eliminarVenta(venta.id)}
-                  className="text-red-500 font-bold hover:underline"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </li>
+  <li key={venta.id} className="bg-white p-4 rounded-md shadow flex justify-between items-center">
+  <div>
+    <p className="font-bold">{venta.cliente}</p>
+    <p className="text-sm text-gray-600">${venta.monto.toLocaleString()}</p>
+    <p className="text-sm text-gray-600">Estado: {venta.estado}</p>
+    <p className="text-sm text-gray-600">
+      Fecha: {venta.fechaCreacion?.toDate ? new Date(venta.fechaCreacion.toDate()).toLocaleString() : 'Sin fecha'}
+    </p>
+  </div>
+  <div className="flex gap-4">
+    <button onClick={() => editarVenta(venta)} className="text-blue-500 font-bold hover:underline">Editar</button>
+    <button onClick={() => eliminarVenta(venta.id)} className="text-red-500 font-bold hover:underline">Eliminar</button>
+  </div>
+</li>
           ))}
         </ul>
 
