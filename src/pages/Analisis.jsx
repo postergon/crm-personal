@@ -1,4 +1,3 @@
-// Nuevo módulo de Análisis con métricas clave
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
@@ -34,7 +33,7 @@ const Analisis = () => {
     fetchData();
   }, []);
 
-  // Utilidades
+  // Ventas por mes
   const ventasPorMes = () => {
     const meses = {};
     ventas.forEach(v => {
@@ -45,17 +44,28 @@ const Analisis = () => {
     return Object.entries(meses).map(([mes, total]) => ({ mes, total }));
   };
 
-  const tareasVencidas = tareas.filter(t => new Date(t.deadline) < new Date());
+  // Tareas activas y vencidas
+  const tareasActivas = tareas.filter(
+    t => new Date(t.deadline) >= new Date() && t.estado !== 'Completada'
+  );
+
+  const tareasVencidas = tareas.filter(
+    t => new Date(t.deadline) < new Date() && t.estado !== 'Completada'
+  );
+
+  // Tickets abiertos
+  const ticketsAbiertos = tickets.filter(
+    t => t.estado?.toLowerCase() !== 'cerrado'
+  );
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Panel de Análisis</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {/* Tarjetas métricas */}
         <Card title="Ventas (30 días)" value={ventas.length} color="bg-green-500" />
-        <Card title="Tareas activas" value={tareas.length} color="bg-blue-500" />
-        <Card title="Tickets abiertos" value={tickets.filter(t => t.estado !== 'Cerrado').length} color="bg-red-500" />
+        <Card title="Tareas activas" value={tareasActivas.length} color="bg-blue-500" />
+        <Card title="Tickets abiertos" value={ticketsAbiertos.length} color="bg-red-500" />
         <Card title="Campañas enviadas" value={campañas.length} color="bg-purple-500" />
       </div>
 
