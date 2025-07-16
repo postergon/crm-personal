@@ -14,20 +14,34 @@ const Analisis = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Ventas
       const ventasSnap = await getDocs(collection(db, 'ventas'));
       setVentas(ventasSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
-      const tareasSnap = await getDocs(collection(db, 'tareas'));
-      setTareas(tareasSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-
+      // Tickets
       const ticketsSnap = await getDocs(collection(db, 'tickets'));
       setTickets(ticketsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
+      // Campañas
       const campañasSnap = await getDocs(collection(db, 'campañas'));
       setCampañas(campañasSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
+      // Contactos + tareas embebidas
       const contactosSnap = await getDocs(collection(db, 'contactos'));
-      setContactos(contactosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const contactosData = contactosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setContactos(contactosData);
+
+      const tareasExtraidas = [];
+      contactosData.forEach(contacto => {
+        (contacto.tareas || []).forEach(t => {
+          tareasExtraidas.push({
+            ...t,
+            contactoId: contacto.id,
+            contactoNombre: contacto.nombre
+          });
+        });
+      });
+      setTareas(tareasExtraidas);
     };
 
     fetchData();
@@ -44,13 +58,15 @@ const Analisis = () => {
     return Object.entries(meses).map(([mes, total]) => ({ mes, total }));
   };
 
+  const hoy = new Date();
+
   // Tareas activas y vencidas
   const tareasActivas = tareas.filter(
-    t => new Date(t.deadline) >= new Date() && t.estado !== 'Completada'
+    t => new Date(t.fecha) >= hoy && !t.completado
   );
 
   const tareasVencidas = tareas.filter(
-    t => new Date(t.deadline) < new Date() && t.estado !== 'Completada'
+    t => new Date(t.fecha) < hoy && !t.completado
   );
 
   // Tickets abiertos
@@ -83,8 +99,14 @@ const Analisis = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ListBlock title="Tareas vencidas" items={tareasVencidas.map(t => t.titulo)} />
-        <ListBlock title="Top contactos con campañas" items={topContactosCampañas(contactos, campañas)} />
+        <ListBlock
+          title="Tareas vencidas"
+          items={tareasVencidas.map(t => `${t.descripcion} (${t.contactoNombre})`)}
+        />
+        <ListBlock
+          title="Top contactos con campañas"
+          items={topContactosCampañas(contactos, campañas)}
+        />
       </div>
     </div>
   );
