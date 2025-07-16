@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
+import { serverTimestamp } from 'firebase/firestore';
 import {
   collection,
   getDocs,
@@ -64,9 +65,12 @@ const Ventas = () => {
       setModoEdicion(false);
       setVentaEditandoId(null);
     } else {
-      await addDoc(ventasRef, data);
-      await registrarHistorial(`Nueva venta registrada para ${cliente}`, 'ventas', 'crear');
-    }
+  await addDoc(ventasRef, {
+    ...data,
+    fechaCreacion: serverTimestamp()
+  });
+  await registrarHistorial(`Nueva venta registrada para ${cliente}`, 'ventas', 'crear');
+}
 
     setCliente('');
     setMonto('');
